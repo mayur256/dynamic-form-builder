@@ -4,6 +4,9 @@ import { ReactElement } from "react";
 // MUI
 import { Grid } from "@mui/material";
 
+// Atoms / Molecules / Organisms
+import Controls from "../../components/organisms/Controls";
+
 // Component definition
 export default function Configurator(): ReactElement {
     return (
@@ -14,8 +17,10 @@ export default function Configurator(): ReactElement {
             sx={{ border: '1px solid #ddd' }}
             mt={1}
         >
-            <Grid item md={3}>Elements</Grid>
-            <Grid item md={6}>Screen</Grid>
+            <Grid item md={2}>
+                <Controls />
+            </Grid>
+            <Grid item md={7}>Screen</Grid>
             <Grid item md={3}>Properties</Grid>
         </Grid>
     );
