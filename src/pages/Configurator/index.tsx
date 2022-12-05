@@ -6,6 +6,7 @@ import { Grid } from "@mui/material";
 
 // Atoms / Molecules / Organisms
 import Controls from "../../components/organisms/Controls";
+import FormContainer from "../../components/organisms/FormContainer";
 
 // Component definition
 export default function Configurator(): ReactElement {
@@ -20,7 +21,9 @@ export default function Configurator(): ReactElement {
             <Grid item md={2}>
                 <Controls />
             </Grid>
-            <Grid item md={7}>Screen</Grid>
+            <Grid item md={7}>
+                <FormContainer />
+            </Grid>
             <Grid item md={3}>Properties</Grid>
         </Grid>
     );
