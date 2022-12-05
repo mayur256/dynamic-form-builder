@@ -5,6 +5,9 @@ import { ReactElement } from "react";
 import { Box, Stack, Typography } from "@mui/material";
 import { styled } from '@mui/material/styles';
 
+// Atoms / Molecules / /Organisms
+import DragContext from "../../molecules/DragContext";
+
 
 const Item = styled(Box)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -30,10 +33,24 @@ export default function Controls(): ReactElement {
         <Stack
             sx={{ border: '1px solid #ddd' }}
         >
+            <Item
+                sx={{
+                    backgroundColor: '#000',
+                    color: '#fff'
+                }}
+            >
+                Controls
+            </Item>
             {elements.map((el) => (
-                <Item key={el.id}>
-                    <Typography>{el.label}</Typography>
-                </Item>
+                <DragContext
+                    key={el.id}
+                    dragSourceId="controls"
+                    item={el}
+                >
+                    <Item>
+                        <Typography>{el.label}</Typography>
+                    </Item>
+                </DragContext>
             ))}
         </Stack>
     )
