@@ -2,17 +2,21 @@
 import { ReactElement } from "react";
 
 // MUI
-import { Box } from "@mui/material";
+import { Box, Stack } from "@mui/material";
+
+// Icons
+import { CloseTwoTone as CloseIcon } from "@mui/icons-material";
 
 // Utils
 import { BUTTON, INPUT, SELECT } from "../../../utils/Constants";
 
 // Props type definition
 interface IProps {
-    field: any
+    field: any,
+    removeElement: (field: any) => void
 }
 // Component definition
-export default function HtmlFieldRenderer({ field }: IProps): ReactElement {
+export default function HtmlFieldRenderer({ field, removeElement }: IProps): ReactElement {
 
     /** Handler functions - starts */
 
@@ -21,11 +25,18 @@ export default function HtmlFieldRenderer({ field }: IProps): ReactElement {
         const fieldRenderer: {[key: string]: (field: any) => ReactElement} = {
             [INPUT]: (field: any): ReactElement => {
                 return (
-                    <input
-                        type={field.subtype}
-                        name={field.name}
-                        id={field.id}
-                    />
+                    <Stack direction="row" spacing={2} sx={{ verticalAlign: 'center', width: 'inherit' }}>
+                        {field.labelText && (
+                            <label>{ field.labelText} :</label>
+                        )}
+
+                        <input
+                            type={field.subtype}
+                            name={field.name}
+                            id={field.id}
+                            style={field?.style ?? {}}
+                        />
+                    </Stack>
                 )
             },
 
@@ -35,21 +46,29 @@ export default function HtmlFieldRenderer({ field }: IProps): ReactElement {
                         type={field.subtype}
                         name={field.name}
                         id={field.id}
+                        style={field?.style ?? {}}
                     >
-                        {field.label}
+                        {field.labelText ? field.labelText : 'Label'}
                     </button>
                 )
             },
 
             [SELECT]: (field: any): ReactElement => {
                 return (
-                    <select
-                        name={field.name}
-                        id={field.id}
-                    >
-                        <option>1</option>
-                        <option>2</option>
-                    </select>
+                    <Stack direction="row" spacing={2} sx={{ verticalAlign: 'center', width: 'inherit' }}>
+                        {field.labelText && (
+                            <label>{field.labelText} :</label>
+                        )}
+
+                        <select
+                            name={field.name}
+                            id={field.id}
+                            style={field?.style ?? {}}
+                        >
+                            <option>1</option>
+                            <option>2</option>
+                        </select>
+                    </Stack>
                 )
             },
         };
@@ -63,10 +82,20 @@ export default function HtmlFieldRenderer({ field }: IProps): ReactElement {
     return (
         <Box
             sx={{
-                padding: 1
+                position: 'relative',
+                padding: 1,
+                width: '100%',
+                borderBottom: '2px solid #ddd'
             }}
         >
             {renderField(field)}
+
+            <Box sx={{ position: 'absolute', top: 0, right: 0 }} title="Remove Element">
+                <CloseIcon
+                    sx={{ cursor: 'pointer' }}
+                    onClick={() => removeElement(field)}
+                />
+            </Box>
         </Box>
     );
 };
