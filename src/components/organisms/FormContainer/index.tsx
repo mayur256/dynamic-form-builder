@@ -7,6 +7,7 @@ import { Paper, Box, Button, Stack } from "@mui/material";
 // Atoms / Molecules / Organisms
 import DropContext from "../../molecules/DropContext";
 import HtmlFieldRenderer from "../../molecules/HtmlFieldRenderer";
+import GridBuilder from "../GridBuilder";
 
 // Utils
 // import { INPUT } from "../../../utils/Constants";
@@ -18,6 +19,7 @@ interface IProps {
     removeElement: (field: any) => void;
     editElement: (field: any) => void;
     resetForm: () => void;
+    gridDim: {rows: number, cols: number};
 };
 
 // Component definition
@@ -26,7 +28,8 @@ export default function FormContainer({
     onDrop,
     removeElement,
     editElement,
-    resetForm
+    resetForm,
+    gridDim
 }: IProps): ReactElement {
 
     // Main JSX
@@ -61,6 +64,13 @@ export default function FormContainer({
                         />
                     )
                 })}
+
+                { gridDim.rows > 1 && gridDim.cols > 1 && (
+                    <GridBuilder
+                        rows={gridDim.rows}
+                        cols={gridDim.cols}
+                    />
+                )}
 
                 {formElements.length > 0 && (
                     <Box sx={{ position: 'absolute', bottom: 10, right: 10 }}>

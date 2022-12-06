@@ -73,8 +73,9 @@ export default function HtmlFieldRenderer({
                             id={field.id}
                             style={field?.style ?? {}}
                         >
-                            <option>1</option>
-                            <option>2</option>
+                            {Array.isArray(field.options) && field.options.map((opt: string, index: number) => (
+                                <option value={opt} key={`${opt}-${index}`}>{opt}</option>
+                            ))}
                         </select>
                     </Stack>
                 )
