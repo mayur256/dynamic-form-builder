@@ -1,6 +1,7 @@
 // Top level imports
 import { ReactElement } from "react";
-
+// nanoid
+import { nanoid } from "nanoid";
 // MUI
 import { Box, Stack, Typography } from "@mui/material";
 import { styled } from '@mui/material/styles';
@@ -8,7 +9,10 @@ import { styled } from '@mui/material/styles';
 // Atoms / Molecules / /Organisms
 import DragContext from "../../molecules/DragContext";
 
+// Utils
+import { BUTTON, FILE, INPUT, SELECT, TEXT } from "../../../utils/Constants";
 
+// Styled component
 const Item = styled(Box)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
     ...theme.typography.body1,
@@ -18,14 +22,13 @@ const Item = styled(Box)(({ theme }) => ({
     borderRadius: 'none'
 }));
 
-
 // component definition
 export default function Controls(): ReactElement {
     const elements = [
-        { type: 'input', label: 'Input - Text', subtype: 'text', name: 'input-text', id: 'input-text' },
-        { type: 'input', label: 'Input - File', subtype: 'file', name: 'input-file', id: 'input-file' },
-        { type: 'button', label: 'Button', subtype: 'button', id: 'button', name: '' },
-        { type: 'select', label: 'Select', subtype: '', name: 'select-states', id: 'select-states' },
+        { type: INPUT, label: 'Input - Text', subtype: TEXT, name: 'input-text', id: 'input-text', uid: nanoid() },
+        { type: INPUT, label: 'Input - File', subtype: FILE, name: 'input-file', id: 'input-file', uid: nanoid() },
+        { type: BUTTON, label: 'Button', subtype: BUTTON, id: 'button', name: '', uid: nanoid() },
+        { type: SELECT, label: 'Select', subtype: '', name: 'select-states', id: 'select-states', uid: nanoid() },
     ];
 
     // Main JSX
