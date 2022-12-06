@@ -1,8 +1,8 @@
 // top level imports
-import { ReactElement, SyntheticEvent, useState } from "react";
+import { ReactElement, SyntheticEvent, useState, useEffect, useRef } from "react";
 
 // MUI
-import { Box, Grid, Typography, Stack } from "@mui/material";
+import { Box, Grid, Typography, Stack, TextField } from "@mui/material";
 
 // React-DnD
 import { DndProvider } from 'react-dnd';
@@ -16,14 +16,39 @@ import withReactContent from 'sweetalert2-react-content';
 import Controls from "../../components/organisms/Controls";
 import FormContainer from "../../components/organisms/FormContainer";
 import PropertiesWindow from "../../components/organisms/PropertiesWindow";
+import { SELECT } from "../../utils/Constants";
 
 // Component definition
 export default function Configurator(): ReactElement {
     // state definitions
     const [formElements, setFormElements] = useState<Array<any>>([]);
     const [selectedEl, setSelectedEl] = useState<any>({});
+    const [gridDim, setGridDim] = useState<any>({
+        rows: 1,
+        cols: 1
+    });
+
+    // Refs
+    const gridDimRef = useRef<any>({
+        gridRows: 1,
+        gridCols: 1
+    });
+
+
     // Sweet Alert initialization
     const MySwal = withReactContent(Swal);
+    const sweetOptions = {
+        showCancelButton: true,
+        showCloseButton: true,
+        focusConfirm: false,
+        confirmButtonText: 'Save',
+        confirmButtonColor: '#1976d2'
+    };
+
+    // Component mounted / updated
+    useEffect(() => {
+        askForGridDimensions();
+    }, []);
 
     /** Handler functions - starts */
 
@@ -32,6 +57,7 @@ export default function Configurator(): ReactElement {
     const onDrop = (dropPayload: any): void => {
         const item = dropPayload.item;
         const labelText = "Label";
+        const options = ['one', 'two'];
         const defaultStyle = {
             backgroundColor: 'white',
             height: 30,
@@ -43,7 +69,7 @@ export default function Configurator(): ReactElement {
             { name: 'Height', value: defaultStyle.height },
             { name: 'Width', value: defaultStyle.width },
             { name: 'Background Color', value: defaultStyle.backgroundColor },
-        ];
+        ].concat(item.type === SELECT ? [{ name: 'Options', value: options.join(', ') }] : []);
 
         MySwal.fire({
             title: 'Default Properties',
@@ -59,11 +85,7 @@ export default function Configurator(): ReactElement {
                     })}
                 </Stack>
             ),
-            showCancelButton: true,
-            showCloseButton: true,
-            focusConfirm: false,
-            confirmButtonText: 'Save',
-            confirmButtonColor: '#1976d2'
+            ...sweetOptions
         }).then(result => {
             if (result.isConfirmed) {
                 setFormElements((prevState: any) => {
@@ -71,7 +93,15 @@ export default function Configurator(): ReactElement {
                         return prevState;
                     };
 
-                    return [...prevState, { ...item, labelText, style: defaultStyle }];
+                    return [
+                        ...prevState,
+                        {
+                            ...item,
+                            labelText,
+                            style: defaultStyle,
+                            options: item.type === SELECT ? options : []
+                        }
+                    ];
                 });
             }
         });
@@ -99,7 +129,7 @@ export default function Configurator(): ReactElement {
         setSelectedEl(field);
     }
 
-    //
+    // handles property change of elements
     const propertyChangeHandler = (
         event: SyntheticEvent<HTMLInputElement | HTMLTextAreaElement>,
         uid: string,
@@ -108,7 +138,8 @@ export default function Configurator(): ReactElement {
         // event object
         const { name, value } = event.target as HTMLInputElement | HTMLTextAreaElement;
         let newSelectedEl: any = null;
-
+        const tValue = name === 'options' ? value.split(',') : value;
+        
         // new transformed form element
         const tEls: Array<any> = formElements.map((el: any) => {
             let finalEl = el;
@@ -118,11 +149,11 @@ export default function Configurator(): ReactElement {
                         ...el,
                         style: {
                             ...el.style,
-                            [name]: ['height', 'width'].includes(name) ? +value : value
+                            [name]: ['height', 'width'].includes(name) ? +tValue : tValue
                         }
                     };
                 } else {
-                    finalEl = { ...el, [name]: value };
+                    finalEl = { ...el, [name]: tValue };
                 }
             
                 newSelectedEl = finalEl;
@@ -133,6 +164,43 @@ export default function Configurator(): ReactElement {
 
         newSelectedEl && setSelectedEl(newSelectedEl);
         setFormElements(tEls);
+    }
+
+    // asks the user for the grid dimensions
+    const askForGridDimensions = (): void => {
+        MySwal.fire({
+            title: 'Enter Grid Dimensions',
+            html: (
+                <Stack direction="row" spacing={2} padding={1}>
+                    {[
+                        { key: 'gridRows', label: 'Grid Rows' },
+                        { key: 'gridCols', label: 'Grid Columns' }
+                    ].map(({ key, label }) => (
+                        <TextField
+                            key={key}
+                            type="number"
+                            label={label}
+                            size="small"
+                            id={key}
+                            name={key}
+                            defaultValue={gridDimRef.current[key]}
+                            onChange={(event: SyntheticEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+                                const { name, value } = event.target as HTMLInputElement | HTMLTextAreaElement;
+                                gridDimRef.current[name] = value;
+                            }}
+                        />
+                    ))}
+                </Stack>
+            ),
+            ...sweetOptions
+        }).then(result => {
+            if (result.isConfirmed) {
+                setGridDim({
+                    rows: +gridDimRef.current.gridRows,
+                    cols: +gridDimRef.current.gridCols,
+                })
+            }
+        });
     }
 
     /** Handler functions - starts */
@@ -161,6 +229,10 @@ export default function Configurator(): ReactElement {
                         removeElement={onRemoveElement}
                         editElement={onEditElement}
                         resetForm={resetForm}
+                        gridDim={{
+                            rows: +gridDim.rows,
+                            cols: +gridDim.cols,
+                        }}
                     />
                 </Grid>
                 <Grid item md={4}>
