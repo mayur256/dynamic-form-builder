@@ -101,12 +101,12 @@ export default function Configurator(): ReactElement {
 
     //
     const propertyChangeHandler = (
-        event: SyntheticEvent<HTMLInputElement>,
+        event: SyntheticEvent<HTMLInputElement | HTMLTextAreaElement>,
         uid: string,
         isStyleProp: boolean = false
     ): void => {
         // event object
-        const { name, value } = event.target as HTMLInputElement;
+        const { name, value } = event.target as HTMLInputElement | HTMLTextAreaElement;
         let newSelectedEl: any = null;
 
         // new transformed form element

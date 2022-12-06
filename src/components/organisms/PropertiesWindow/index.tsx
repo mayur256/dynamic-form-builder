@@ -2,12 +2,12 @@
 import { ReactElement, SyntheticEvent } from "react";
 
 // MUI
-import { Box, Paper, Grid } from "@mui/material";
+import { Box, Paper, Grid, TextField } from "@mui/material";
 
 // Props type definitions
 interface IProps {
     element: any;
-    onPropertyChange: (ev: SyntheticEvent<HTMLInputElement>, elementUid: string, isStyle?: boolean) => void
+    onPropertyChange: (ev: SyntheticEvent<HTMLInputElement | HTMLTextAreaElement>, elementUid: string, isStyle?: boolean) => void
 };
 
 // Component definition
@@ -50,9 +50,11 @@ export default function PropertiesWindow({
                         <Grid  container key={valueKey}>
                             <Grid item md={6} sx={{ border: '1px solid #c6bfbf' }} p={1}>{label}</Grid>
                             <Grid item md={6} sx={{ border: '1px solid #c6bfbf' }} p={1}>
-                                <input
+                                <TextField
+                                    hiddenLabel
+                                    variant="outlined"
+                                    size="small"
                                     name={valueKey}
-                                    style={{ padding: 4 }}
                                     value={isStyle ? element?.style?.[valueKey] : element[valueKey]}
                                     onChange={(event) => {
                                         onPropertyChange(event, element?.uid, isStyle)
