@@ -5,18 +5,26 @@ import { ReactElement } from "react";
 import { Box, Stack } from "@mui/material";
 
 // Icons
-import { CloseTwoTone as CloseIcon } from "@mui/icons-material";
+import {
+    CloseTwoTone as CloseIcon,
+    Edit as EditIcon
+} from "@mui/icons-material";
 
 // Utils
 import { BUTTON, INPUT, SELECT } from "../../../utils/Constants";
 
 // Props type definition
 interface IProps {
-    field: any,
-    removeElement: (field: any) => void
+    field: any;
+    removeElement: (field: any) => void;
+    editElement: (field: any) => void
 }
 // Component definition
-export default function HtmlFieldRenderer({ field, removeElement }: IProps): ReactElement {
+export default function HtmlFieldRenderer({
+    field,
+    removeElement,
+    editElement
+}: IProps): ReactElement {
 
     /** Handler functions - starts */
 
@@ -90,12 +98,21 @@ export default function HtmlFieldRenderer({ field, removeElement }: IProps): Rea
         >
             {renderField(field)}
 
-            <Box sx={{ position: 'absolute', top: 0, right: 0 }} title="Remove Element">
+            <Stack
+                direction="row"
+                spacing={1}
+                sx={{ position: 'absolute', top: 0, right: 0 }}
+            >
                 <CloseIcon
                     sx={{ cursor: 'pointer' }}
                     onClick={() => removeElement(field)}
                 />
-            </Box>
+
+                <EditIcon
+                    sx={{ cursor: 'pointer' }}
+                    onClick={() => editElement(field)}
+                />
+            </Stack>
         </Box>
     );
 };

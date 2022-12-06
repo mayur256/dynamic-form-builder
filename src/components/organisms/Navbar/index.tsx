@@ -21,7 +21,7 @@ export default function Navbar(): ReactElement {
                         <MenuIcon />
                     </IconButton>
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                        News
+                        Brix
                     </Typography>
 
                     <Button color="inherit" sx={{ textAlign: 'right' }}>Login</Button>
