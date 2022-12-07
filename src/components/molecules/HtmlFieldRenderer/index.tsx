@@ -17,7 +17,7 @@ import { BUTTON, INPUT, SELECT } from "../../../utils/Constants";
 interface IProps {
     field: any;
     removeElement: (field: any) => void;
-    editElement: (field: any) => void
+    editElement: (field: any) => void;
 }
 // Component definition
 export default function HtmlFieldRenderer({
@@ -89,14 +89,7 @@ export default function HtmlFieldRenderer({
 
     // Main JSX
     return (
-        <Box
-            sx={{
-                position: 'relative',
-                padding: 1,
-                width: '100%',
-                borderBottom: '2px solid #ddd'
-            }}
-        >
+        <>
             {renderField(field)}
 
             <Stack
@@ -114,6 +107,6 @@ export default function HtmlFieldRenderer({
                     onClick={() => editElement(field)}
                 />
             </Stack>
-        </Box>
+        </>
     );
 };

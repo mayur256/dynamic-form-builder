@@ -11,7 +11,8 @@ import { Box } from "@mui/material";
 interface IProps {
     accept: string | string[];
     children: ReactNode;
-    onDrop: (item: any) => void
+    onDrop: (item: any, targetInfo?: any) => void;
+    targetInfo?: any
 }
 
 // Component definition
@@ -19,12 +20,15 @@ const DropContext = ({
     accept,
     children,
     onDrop,
+    targetInfo = {},
     ...rest
 }: IProps): ReactElement => {
     // drop hook
     const [, drop] = useDrop(() => ({
         accept,
-        drop: onDrop
+        drop: (dropPayload) => {
+            onDrop(dropPayload, targetInfo);
+        }
     }));
 
     // Main JSX
@@ -32,6 +36,7 @@ const DropContext = ({
         <Box
             ref={drop}
             {...rest}
+            sx={{ width: '100%', height: '100%' }}
         >
             {children}
         </Box>

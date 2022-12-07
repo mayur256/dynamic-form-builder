@@ -1,8 +1,9 @@
 // top level imports
 import { ReactElement, SyntheticEvent, useState, useEffect, useRef } from "react";
+// import { nanoid } from "nanoid";
 
 // MUI
-import { Box, Grid, Typography, Stack, TextField } from "@mui/material";
+import { Box, Grid, Typography, Stack, TextField, Button } from "@mui/material";
 
 // React-DnD
 import { DndProvider } from 'react-dnd';
@@ -16,24 +17,22 @@ import withReactContent from 'sweetalert2-react-content';
 import Controls from "../../components/organisms/Controls";
 import FormContainer from "../../components/organisms/FormContainer";
 import PropertiesWindow from "../../components/organisms/PropertiesWindow";
+
+// Utils
 import { SELECT } from "../../utils/Constants";
 
 // Component definition
 export default function Configurator(): ReactElement {
     // state definitions
-    const [formElements, setFormElements] = useState<Array<any>>([]);
+    const [formElements] = useState<Array<any>>([]);
     const [selectedEl, setSelectedEl] = useState<any>({});
-    const [gridDim, setGridDim] = useState<any>({
-        rows: 1,
-        cols: 1
-    });
+    const [gridCells, setGridCells] = useState<Array<any>>([]);
 
     // Refs
     const gridDimRef = useRef<any>({
         gridRows: 1,
         gridCols: 1
     });
-
 
     // Sweet Alert initialization
     const MySwal = withReactContent(Swal);
@@ -47,14 +46,14 @@ export default function Configurator(): ReactElement {
 
     // Component mounted / updated
     useEffect(() => {
-        askForGridDimensions();
+        // askForGridDimensions();
     }, []);
 
     /** Handler functions - starts */
 
     // an element is dropped into the form container
     // handles the drop event
-    const onDrop = (dropPayload: any): void => {
+    const onDrop = (dropPayload: any, dropTargetInfo?: any): void => {
         const item = dropPayload.item;
         const labelText = "Label";
         const options = ['one', 'two'];
@@ -88,7 +87,23 @@ export default function Configurator(): ReactElement {
             ...sweetOptions
         }).then(result => {
             if (result.isConfirmed) {
-                setFormElements((prevState: any) => {
+                
+                if (dropTargetInfo.hasOwnProperty('rowIndex') && dropTargetInfo.hasOwnProperty('colIndex')) {
+                    const { rowIndex, colIndex } = dropTargetInfo;
+                    setGridCells((prevState: Array<any>) => {
+                        const tGridCells = [...prevState];
+                        tGridCells[rowIndex][colIndex].element = {
+                            ...item,
+                            labelText,
+                            style: defaultStyle,
+                            options: item.type === SELECT ? options : []
+                        };
+                        
+                        return tGridCells;
+                    });
+                }
+
+                /* setFormElements((prevState: any) => {
                     if (prevState.some((el: any) => el.uid === item.uid)) {
                         return prevState;
                     };
@@ -102,26 +117,33 @@ export default function Configurator(): ReactElement {
                             options: item.type === SELECT ? options : []
                         }
                     ];
-                });
+                }); */
             }
         });
     }
 
     // Reset the form container
     const resetForm = () => {
-        setFormElements([]);
+        // setFormElements([]);
+        setGridCells([]);
         setSelectedEl({});
     }
 
     // Removes an element added to form container
     const onRemoveElement = (toBeRemoved: any) => {
-        if (toBeRemoved.uid === selectedEl.uid) {
-            setSelectedEl({});
+        if (toBeRemoved.hasOwnProperty('rowIndex') && toBeRemoved.hasOwnProperty('colIndex')) {
+            const { rowIndex, colIndex} = toBeRemoved;
+            setGridCells((prevState: Array<any>) => {
+                const tGridCells = [...prevState];
+                tGridCells[rowIndex][colIndex].element = null;
+
+                return tGridCells;
+            })
         }
 
-        setFormElements((prevState: any) => {
+        /*setFormElements((prevState: any) => {
             return prevState.filter((el: any) => el.uid !== toBeRemoved.uid);
-        });
+        });*/
     }
 
     // selects an element that is to be edited
@@ -140,8 +162,33 @@ export default function Configurator(): ReactElement {
         let newSelectedEl: any = null;
         const tValue = name === 'options' ? value.split(',') : value;
         
+        if (selectedEl.hasOwnProperty('rowIndex') && selectedEl.hasOwnProperty('colIndex')) {
+            const { rowIndex, colIndex } = selectedEl;
+            setGridCells((prevState: Array<any>) => {
+                const tGridCells = [...prevState];
+                let targetEl = tGridCells[rowIndex][colIndex].element;
+
+                if (isStyleProp) {
+                    targetEl = {
+                        ...targetEl,
+                        style: {
+                            ...targetEl.style,
+                            [name]: ['height', 'width'].includes(name) ? +tValue : tValue
+                        }
+                    };
+                } else {
+                    targetEl = { ...targetEl, [name]: tValue };
+                }
+
+                newSelectedEl = { ...targetEl, rowIndex, colIndex };
+                tGridCells[rowIndex][colIndex].element = targetEl;
+                newSelectedEl && setSelectedEl(newSelectedEl);
+                return tGridCells;
+            });
+        }
+
         // new transformed form element
-        const tEls: Array<any> = formElements.map((el: any) => {
+        /* const tEls: Array<any> = formElements.map((el: any) => {
             let finalEl = el;
             if (el.uid === uid) {
                 if (isStyleProp) {
@@ -160,10 +207,8 @@ export default function Configurator(): ReactElement {
             }
 
             return finalEl;
-        });
-
-        newSelectedEl && setSelectedEl(newSelectedEl);
-        setFormElements(tEls);
+        }); */
+        // setFormElements(tEls);
     }
 
     // asks the user for the grid dimensions
@@ -195,10 +240,25 @@ export default function Configurator(): ReactElement {
             ...sweetOptions
         }).then(result => {
             if (result.isConfirmed) {
-                setGridDim({
-                    rows: +gridDimRef.current.gridRows,
-                    cols: +gridDimRef.current.gridCols,
-                })
+                const grids = [];
+                const rows = +gridDimRef.current.gridRows;
+                const cols = +gridDimRef.current.gridCols;
+
+                // Compute the grid cells based on user input
+                for (let x = 0; x < rows; x++) {
+                    const colsArray = [];
+                    for (let y = 0; y < cols; y++) {
+                        colsArray.push({
+                            rowIndex: x,
+                            colIndex: y,
+                            cellId: `cell-${x}-${y}`,
+                            element: null
+                        });
+                    }
+                    grids.push(colsArray);
+                }
+
+                setGridCells(grids);
             }
         });
     }
@@ -208,8 +268,22 @@ export default function Configurator(): ReactElement {
     // Main Renderer
     return (
         <DndProvider backend={HTML5Backend}>
-            <Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="h4" my={1} py={1}>Configurator</Typography>
+                <Box>
+                    <Stack direction="row" spacing={2} paddingTop={2}>
+                        <Button variant="contained" disabled={gridCells.length > 0} onClick={askForGridDimensions}>Add Grid Cells</Button>
+                        <Button variant="contained" disabled={gridCells.length === 0}>Save</Button>
+                        <Button
+                            variant="contained"
+                            color="error"
+                            onClick={resetForm}
+                            disabled={gridCells.length === 0}
+                        >
+                            Reset
+                        </Button>
+                    </Stack>
+                </Box>
             </Box>
 
             <Grid
@@ -229,10 +303,7 @@ export default function Configurator(): ReactElement {
                         removeElement={onRemoveElement}
                         editElement={onEditElement}
                         resetForm={resetForm}
-                        gridDim={{
-                            rows: +gridDim.rows,
-                            cols: +gridDim.cols,
-                        }}
+                        gridCells={gridCells}
                     />
                 </Grid>
                 <Grid item md={4}>
