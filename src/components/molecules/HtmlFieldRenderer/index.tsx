@@ -56,7 +56,7 @@ export default function HtmlFieldRenderer({
                         id={field.id}
                         style={field?.style ?? {}}
                     >
-                        {field.labelText ? field.labelText : 'Label'}
+                        {field.labelText}
                     </button>
                 )
             },
@@ -89,7 +89,7 @@ export default function HtmlFieldRenderer({
 
     // Main JSX
     return (
-        <>
+        <Box sx={{ padding: 1 }}>
             {renderField(field)}
 
             <Stack
@@ -107,6 +107,6 @@ export default function HtmlFieldRenderer({
                     onClick={() => editElement(field)}
                 />
             </Stack>
-        </>
+        </Box>
     );
 };
