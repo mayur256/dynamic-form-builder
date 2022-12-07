@@ -48,9 +48,9 @@ export default function GridBuilder({
                                     sx={{
                                         borderLeft: col === 0 ? 'none' : '1px solid gray',
                                         borderRight: col === row.length - 1 ? 'none' : '1px solid gray',
-                                        padding: 2,
                                         position: 'relative',
-                                        minHeight: '40px'
+                                        minHeight: '50px',
+                                        backgroundColor: !col?.element ? '#abebab' : '#fff',
                                     }}
                                 >
                                     <DropContext

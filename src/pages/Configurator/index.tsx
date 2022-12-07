@@ -136,14 +136,13 @@ export default function Configurator(): ReactElement {
             setGridCells((prevState: Array<any>) => {
                 const tGridCells = [...prevState];
                 tGridCells[rowIndex][colIndex].element = null;
-
                 return tGridCells;
-            })
-        }
+            });
 
-        /*setFormElements((prevState: any) => {
-            return prevState.filter((el: any) => el.uid !== toBeRemoved.uid);
-        });*/
+            if (selectedEl.rowIndex === rowIndex && selectedEl.colIndex === colIndex) {
+                setSelectedEl({});
+            }
+        }
     }
 
     // selects an element that is to be edited
