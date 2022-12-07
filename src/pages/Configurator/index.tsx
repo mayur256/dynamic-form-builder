@@ -55,6 +55,8 @@ export default function Configurator(): ReactElement {
     // handles the drop event
     const onDrop = (dropPayload: any, dropTargetInfo?: any): void => {
         const item = dropPayload.item;
+        // const { dragSourceId } = dropPayload;
+
         const labelText = "Label";
         const options = ['one', 'two'];
         const defaultStyle = {
@@ -70,26 +72,43 @@ export default function Configurator(): ReactElement {
             { name: 'Background Color', value: defaultStyle.backgroundColor },
         ].concat(item.type === SELECT ? [{ name: 'Options', value: options.join(', ') }] : []);
 
-        MySwal.fire({
-            title: 'Default Properties',
-            html: (
-                <Stack direction="column" spacing={1}>
-                    {properties.map((prop) => {
-                        return (
-                            <Stack direction="row" spacing={2}>
-                                <Typography sx={{ fontWeight: 600 }}>{prop.name}: </Typography>
-                                <Typography>{prop.value}</Typography>
-                            </Stack>
-                        )
-                    })}
-                </Stack>
-            ),
-            ...sweetOptions
-        }).then(result => {
-            if (result.isConfirmed) {
-                
-                if (dropTargetInfo.hasOwnProperty('rowIndex') && dropTargetInfo.hasOwnProperty('colIndex')) {
-                    const { rowIndex, colIndex } = dropTargetInfo;
+        if (dropTargetInfo.hasOwnProperty('rowIndex') && dropTargetInfo.hasOwnProperty('colIndex')) {
+            // indexes of cells where the element is dropped
+            const { rowIndex, colIndex } = dropTargetInfo;
+
+            const alreadyHasElement = gridCells[rowIndex][colIndex].element !== null;
+
+            const sweetAlertContent = {
+                title: 'Default Properties',
+                html: (
+                    <Stack direction="column" spacing={1}>
+                        {properties.map((prop) => {
+                            return (
+                                <Stack direction="row" spacing={2}>
+                                    <Typography sx={{ fontWeight: 600 }}>{prop.name}: </Typography>
+                                    <Typography>{prop.value}</Typography>
+                                </Stack>
+                            )
+                        })}
+                    </Stack>
+                ),
+            };
+
+            if (alreadyHasElement) {
+                sweetAlertContent.title = 'Replace Element';
+                sweetAlertContent.html = (
+                    <Typography>
+                        There's already an element in this cell. Do you want to replace the element in the cell?
+                    </Typography>
+                );
+            }
+
+            MySwal.fire({
+                ...sweetAlertContent,
+                ...sweetOptions
+            }).then(result => {
+                if (result.isConfirmed) {
+
                     setGridCells((prevState: Array<any>) => {
                         const tGridCells = [...prevState];
                         tGridCells[rowIndex][colIndex].element = {
@@ -98,28 +117,28 @@ export default function Configurator(): ReactElement {
                             style: defaultStyle,
                             options: item.type === SELECT ? options : []
                         };
-                        
+
                         return tGridCells;
                     });
+
+                    /* setFormElements((prevState: any) => {
+                        if (prevState.some((el: any) => el.uid === item.uid)) {
+                            return prevState;
+                        };
+    
+                        return [
+                            ...prevState,
+                            {
+                                ...item,
+                                labelText,
+                                style: defaultStyle,
+                                options: item.type === SELECT ? options : []
+                            }
+                        ];
+                    }); */
                 }
-
-                /* setFormElements((prevState: any) => {
-                    if (prevState.some((el: any) => el.uid === item.uid)) {
-                        return prevState;
-                    };
-
-                    return [
-                        ...prevState,
-                        {
-                            ...item,
-                            labelText,
-                            style: defaultStyle,
-                            options: item.type === SELECT ? options : []
-                        }
-                    ];
-                }); */
-            }
-        });
+            });
+        }
     }
 
     // Reset the form container

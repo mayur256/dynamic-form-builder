@@ -10,6 +10,9 @@ import {
     Edit as EditIcon
 } from "@mui/icons-material";
 
+// Atoms / Molecules / Organisms
+import DragContext from "../DragContext";
+
 // Utils
 import { BUTTON, INPUT, SELECT } from "../../../utils/Constants";
 
@@ -90,23 +93,28 @@ export default function HtmlFieldRenderer({
     // Main JSX
     return (
         <Box sx={{ padding: 1 }}>
-            {renderField(field)}
-
-            <Stack
-                direction="row"
-                spacing={1}
-                sx={{ position: 'absolute', top: 0, right: 0 }}
+            <DragContext
+                dragSourceId="form-elements"
+                item={field}
             >
-                <CloseIcon
-                    sx={{ cursor: 'pointer' }}
-                    onClick={() => removeElement(field)}
-                />
+                {renderField(field)}
 
-                <EditIcon
-                    sx={{ cursor: 'pointer' }}
-                    onClick={() => editElement(field)}
-                />
-            </Stack>
+                <Stack
+                    direction="row"
+                    spacing={1}
+                    sx={{ position: 'absolute', top: 0, right: 0 }}
+                >
+                    <CloseIcon
+                        sx={{ cursor: 'pointer' }}
+                        onClick={() => removeElement(field)}
+                    />
+
+                    <EditIcon
+                        sx={{ cursor: 'pointer' }}
+                        onClick={() => editElement(field)}
+                    />
+                </Stack>
+            </DragContext>
         </Box>
     );
 };

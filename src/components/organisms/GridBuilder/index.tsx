@@ -54,7 +54,7 @@ export default function GridBuilder({
                                     }}
                                 >
                                     <DropContext
-                                        accept="controls"
+                                        accept={['controls', 'form-elements']}
                                         onDrop={onDrop}
                                         targetInfo={{
                                             id: col.cellId,
