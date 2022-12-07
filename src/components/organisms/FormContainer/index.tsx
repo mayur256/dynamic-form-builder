@@ -2,10 +2,10 @@
 import { ReactElement } from "react";
 
 // MUI
-import { Paper, Box, Button, Stack } from "@mui/material";
+import { Paper, Box } from "@mui/material";
 
 // Atoms / Molecules / Organisms
-import DropContext from "../../molecules/DropContext";
+// import DropContext from "../../molecules/DropContext";
 import HtmlFieldRenderer from "../../molecules/HtmlFieldRenderer";
 import GridBuilder from "../GridBuilder";
 
@@ -16,10 +16,11 @@ import GridBuilder from "../GridBuilder";
 interface IProps {
     formElements: Array<any>;
     onDrop: (dropPayload: any) => void;
-    removeElement: (field: any) => void;
+    removeElement: (field: any, elementLocator?: any) => void;
     editElement: (field: any) => void;
     resetForm: () => void;
-    gridDim: {rows: number, cols: number};
+    gridCells: Array<any>;
+    // gridDim?: { rows: number, cols: number };
 };
 
 // Component definition
@@ -29,15 +30,13 @@ export default function FormContainer({
     removeElement,
     editElement,
     resetForm,
-    gridDim
+    gridCells = []
+    // gridDim,
 }: IProps): ReactElement {
 
     // Main JSX
     return (
-        <DropContext
-            accept="controls"
-            onDrop={onDrop}
-        >
+        <>
             <Box
                 sx={{
                     backgroundColor: '#000',
@@ -65,14 +64,16 @@ export default function FormContainer({
                     )
                 })}
 
-                { gridDim.rows > 1 && gridDim.cols > 1 && (
+                {gridCells.length > 0 && (
                     <GridBuilder
-                        rows={gridDim.rows}
-                        cols={gridDim.cols}
+                        removeElement={removeElement}
+                        editElement={editElement}
+                        onDrop={onDrop}
+                        gridCells={gridCells}
                     />
                 )}
 
-                {formElements.length > 0 && (
+                {/* `{gridCells.length > 0 && (
                     <Box sx={{ position: 'absolute', bottom: 10, right: 10 }}>
                         <Stack direction="row" spacing={2}>
                             <Button variant="contained">Save</Button>
@@ -85,8 +86,8 @@ export default function FormContainer({
                             </Button>
                         </Stack>
                     </Box>
-                )}
+                )}` */}
             </Paper>
-        </DropContext>
+        </>
     )
 };

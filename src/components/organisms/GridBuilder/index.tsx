@@ -3,16 +3,26 @@ import { ReactElement } from "react";
 
 // MUI
 import { Grid } from "@mui/material";
+import DropContext from "../../molecules/DropContext";
+import HtmlFieldRenderer from "../../molecules/HtmlFieldRenderer";
 
 // props type definition
 interface IProps {
-    rows: number;
-    cols: number;
+    // rows: number;
+    // cols: number;
+    removeElement: (field: any) => void;
+    editElement: (field: any) => void;
+    onDrop: (dropPayload: any) => void;
+    gridCells: Array<any>;
 }
 // Component definition
 export default function GridBuilder({
-    rows,
-    cols
+    // rows,
+    // cols,
+    removeElement,
+    editElement,
+    onDrop,
+    gridCells = []
 }: IProps): ReactElement {
 
     const MAX_GRID_COLS = 12;
@@ -20,28 +30,50 @@ export default function GridBuilder({
     // Main Renderer
     return (
         <>
-            {Array.from(Array(rows).keys()).map((row) => {
+            {gridCells.map((row: Array<any>, rowIndex: number) => {
                 return (
                     <Grid
                         container
-                        key={row}
+                        key={`row-${rowIndex}`}
                         sx={{
-                            border: '1px solid gray'
+                            border: '1px solid gray',
                         }}
                     >
-                        {Array.from(Array(cols).keys()).map((col) => {
+                        {row.map((col: any, colIndex: number) => {
                             return (
                                 <Grid
                                     item
-                                    md={MAX_GRID_COLS / cols} key={`${row}-${col}`}
+                                    md={MAX_GRID_COLS / row.length}
+                                    key={`cell-${rowIndex}-${colIndex}`}
                                     sx={{
                                         borderLeft: col === 0 ? 'none' : '1px solid gray',
-                                        borderRight: col === cols - 1 ? 'none' : '1px solid gray',
-                                        padding: 2
+                                        borderRight: col === row.length - 1 ? 'none' : '1px solid gray',
+                                        padding: 2,
+                                        position: 'relative',
+                                        minHeight: '40px'
                                     }}
-                                    
                                 >
-                                    Cell {row} - {col}
+                                    <DropContext
+                                        accept="controls"
+                                        onDrop={onDrop}
+                                        targetInfo={{
+                                            id: col.cellId,
+                                            rowIndex,
+                                            colIndex
+                                        }}
+                                    >
+                                        {col?.element ? (
+                                            <HtmlFieldRenderer
+                                                field={col?.element}
+                                                removeElement={() => removeElement({
+                                                    id: col.cellId,
+                                                    rowIndex,
+                                                    colIndex
+                                                })}
+                                                editElement={(el) => editElement({ ...el, rowIndex, colIndex})}
+                                            />
+                                        ) : '' }
+                                    </DropContext>
                                 </Grid>
                             )
                         })}
