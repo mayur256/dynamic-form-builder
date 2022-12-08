@@ -363,7 +363,46 @@ export default function Configurator(): ReactElement {
             ];
         }); */
     }
-    /** Handler functions - starts */
+
+    // generates a json representation of the form container elements
+    const generateJson = () => {
+        let fileName = '';
+        MySwal.fire({
+            title: 'Screen Name',
+            html: (
+                <Grid spacing={2} container>
+                    <Grid item md={12}>
+                        <TextField
+                            fullWidth
+                            name="filename"
+                            size="small"
+                            label="Please enter Screen Name"
+                            defaultValue={fileName}
+                            onChange={(e) => fileName = e.target.value}
+                        />
+                    </Grid>
+                </Grid>
+            ),
+            ...sweetOptions
+        }).then(result => {
+            if (result.isConfirmed) {
+                downloadJsonData(JSON.stringify(gridCells), fileName);
+            }
+        })
+
+    }
+
+    // downloads a file with json data
+    const downloadJsonData = (jsonData: any, fileName: any) => {
+        const blob = new Blob([jsonData], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.download = `${fileName}.json`;
+        link.href = url;
+        link.click();
+    };
+
+    /** Handler functions - stops */
     
     // Main Renderer
     return (
@@ -373,7 +412,7 @@ export default function Configurator(): ReactElement {
                 <Box>
                     <Stack direction="row" spacing={2} paddingTop={2}>
                         <Button variant="contained" disabled={gridCells.length > 0} onClick={askForGridDimensions}>Add Grid Cells</Button>
-                        <Button variant="contained" disabled={gridCells.length === 0}>Save</Button>
+                        <Button variant="contained" disabled={gridCells.length === 0} onClick={generateJson}>Save</Button>
                         <Button
                             variant="contained"
                             color="error"
