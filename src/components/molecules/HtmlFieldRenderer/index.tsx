@@ -10,23 +10,23 @@ import {
     Edit as EditIcon
 } from "@mui/icons-material";
 
-// Atoms / Molecules / Organisms
-import DragContext from "../DragContext";
 
 // Utils
-import { BUTTON, FORM_ELEMENTS, INPUT, SELECT } from "../../../utils/Constants";
+import { BUTTON, INPUT, SELECT } from "../../../utils/Constants";
 
 // Props type definition
 interface IProps {
     field: any;
-    removeElement: (field: any) => void;
-    editElement: (field: any) => void;
+    removeElement?: (field: any) => void;
+    editElement?: (field: any) => void;
+    editable?: boolean;
 }
 // Component definition
 export default function HtmlFieldRenderer({
     field,
     removeElement,
-    editElement
+    editElement,
+    editable
 }: IProps): ReactElement {
 
     /** Handler functions - starts */
@@ -93,12 +93,9 @@ export default function HtmlFieldRenderer({
     // Main JSX
     return (
         <Box sx={{ padding: 1 }}>
-            <DragContext
-                dragSourceId={FORM_ELEMENTS}
-                item={field}
-            >
-                {renderField(field)}
+            {renderField(field)}
 
+            {editable && (
                 <Stack
                     direction="row"
                     spacing={1}
@@ -106,15 +103,15 @@ export default function HtmlFieldRenderer({
                 >
                     <CloseIcon
                         sx={{ cursor: 'pointer' }}
-                        onClick={() => removeElement(field)}
+                        onClick={() => removeElement?.(field)}
                     />
 
                     <EditIcon
                         sx={{ cursor: 'pointer' }}
-                        onClick={() => editElement(field)}
+                        onClick={() => editElement?.(field)}
                     />
                 </Stack>
-            </DragContext>
+            )}
         </Box>
     );
 };

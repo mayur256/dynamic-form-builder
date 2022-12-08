@@ -6,6 +6,12 @@ import { Grid } from "@mui/material";
 import DropContext from "../../molecules/DropContext";
 import HtmlFieldRenderer from "../../molecules/HtmlFieldRenderer";
 
+// Atoms / Molecules / Organisms
+import DragContext from "../../molecules/DragContext";
+
+// Utils
+import { FORM_ELEMENTS } from "../../../utils/Constants";
+
 // props type definition
 interface IProps {
     // rows: number;
@@ -63,15 +69,21 @@ export default function GridBuilder({
                                         }}
                                     >
                                         {col?.element ? (
-                                            <HtmlFieldRenderer
-                                                field={{ ...col?.element, rowIndex, colIndex }}
-                                                removeElement={() => removeElement({
-                                                    id: col.cellId,
-                                                    rowIndex,
-                                                    colIndex
-                                                })}
-                                                editElement={(el) => editElement({ ...el, rowIndex, colIndex})}
-                                            />
+                                            <DragContext
+                                                dragSourceId={FORM_ELEMENTS}
+                                                item={{ ...col?.element, rowIndex, colIndex }}
+                                            >
+                                                <HtmlFieldRenderer
+                                                    field={ col?.element }
+                                                    removeElement={() => removeElement({
+                                                        id: col.cellId,
+                                                        rowIndex,
+                                                        colIndex
+                                                    })}
+                                                    editElement={(el) => editElement({ ...el, rowIndex, colIndex })}
+                                                    editable
+                                                />
+                                            </DragContext>
                                         ) : '' }
                                     </DropContext>
                                 </Grid>

@@ -9,7 +9,9 @@ import CssBaseline from "@mui/material/CssBaseline";
 import Navbar from "./components/organisms/Navbar";
 import MainSection from "./layout/MainSection";
 
-const Configurator = lazy(() => import('./pages/Configurator'));
+// Pages
+// const Configurator = lazy(() => import('./pages/Configurator'));
+const Presenter = lazy(() => import('./pages/Presentor'));
 
 const appTheme = createTheme();
 
@@ -22,7 +24,7 @@ function App() {
             <Navbar />
 
             <MainSection>
-                <Configurator />
+                <Presenter />
             </MainSection>
         </ThemeProvider>
   );
