@@ -37,7 +37,13 @@ export default function Configurator(): ReactElement {
     // state definitions
     const [formElements] = useState<Array<any>>([]);
     const [selectedEl, setSelectedEl] = useState<any>({});
-    const [gridCells, setGridCells] = useState<Array<any>>([]);
+    const [gridCells, setGridCells] = useState<Array<any>>(() => {
+        const jsonData = window.localStorage.getItem('formUI');
+        if (jsonData) {
+            return JSON.parse(jsonData);
+        }
+        return [];
+    });
 
     // Refs
     const gridDimRef = useRef<any>({
@@ -132,7 +138,8 @@ export default function Configurator(): ReactElement {
                     labelText,
                     defaultStyle,
                     options,
-                    operationRef
+                    operationRef,
+                    isWithinGrid
                 });
             } else {
                 MySwal.fire({
@@ -148,7 +155,8 @@ export default function Configurator(): ReactElement {
                             labelText,
                             defaultStyle,
                             options,
-                            operationRef
+                            operationRef,
+                            isWithinGrid
                         });
                     }
                 });
@@ -327,7 +335,8 @@ export default function Configurator(): ReactElement {
         labelText,
         defaultStyle,
         options,
-        operationRef
+        operationRef,
+        isWithinGrid
     }: any) => {
         setGridCells((prevState: Array<any>) => {
             const tGridCells = [...prevState];
@@ -338,10 +347,12 @@ export default function Configurator(): ReactElement {
                 options: item.type === SELECT ? options : []
             };
 
-            if (operationRef.current === "move") {
+            if (isWithinGrid && operationRef.current === "move") {
                 // indexes of the cell from where the element is dragged
                 const { rowIndex: dragRowIndex, colIndex: dragColIndex } = item;
-                tGridCells[dragRowIndex][dragColIndex].element = null;
+                if (tGridCells[dragRowIndex][dragColIndex]?.hasOwnProperty('element')) {
+                    tGridCells[dragRowIndex][dragColIndex].element = null;
+                }
             }
 
             return tGridCells;
@@ -386,7 +397,9 @@ export default function Configurator(): ReactElement {
             ...sweetOptions
         }).then(result => {
             if (result.isConfirmed) {
-                downloadJsonData(JSON.stringify(gridCells), fileName);
+                const data = JSON.stringify(gridCells);
+                window.localStorage.setItem('formUI', data);
+                downloadJsonData(data, fileName);
             }
         })
 

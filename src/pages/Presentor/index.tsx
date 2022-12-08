@@ -100,7 +100,6 @@ export default function Presentor(): ReactElement {
                 padding={1}
                 sx={{
                     border: '1px solid #ddd',
-                    minHeight: '60vh'
                 }}
                 mt={1}
             >
