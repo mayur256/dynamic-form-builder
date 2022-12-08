@@ -64,7 +64,7 @@ export default function GridBuilder({
                                     >
                                         {col?.element ? (
                                             <HtmlFieldRenderer
-                                                field={col?.element}
+                                                field={{ ...col?.element, rowIndex, colIndex }}
                                                 removeElement={() => removeElement({
                                                     id: col.cellId,
                                                     rowIndex,

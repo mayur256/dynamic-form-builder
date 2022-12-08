@@ -14,7 +14,7 @@ import {
 import DragContext from "../DragContext";
 
 // Utils
-import { BUTTON, INPUT, SELECT } from "../../../utils/Constants";
+import { BUTTON, FORM_ELEMENTS, INPUT, SELECT } from "../../../utils/Constants";
 
 // Props type definition
 interface IProps {
@@ -94,7 +94,7 @@ export default function HtmlFieldRenderer({
     return (
         <Box sx={{ padding: 1 }}>
             <DragContext
-                dragSourceId="form-elements"
+                dragSourceId={FORM_ELEMENTS}
                 item={field}
             >
                 {renderField(field)}

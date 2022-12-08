@@ -3,7 +3,18 @@ import { ReactElement, SyntheticEvent, useState, useEffect, useRef } from "react
 // import { nanoid } from "nanoid";
 
 // MUI
-import { Box, Grid, Typography, Stack, TextField, Button } from "@mui/material";
+import {
+    Box,
+    Grid,
+    Typography,
+    Stack,
+    TextField,
+    Button,
+    FormControl,
+    Radio,
+    RadioGroup,
+    FormControlLabel,
+} from "@mui/material";
 
 // React-DnD
 import { DndProvider } from 'react-dnd';
@@ -19,7 +30,7 @@ import FormContainer from "../../components/organisms/FormContainer";
 import PropertiesWindow from "../../components/organisms/PropertiesWindow";
 
 // Utils
-import { SELECT } from "../../utils/Constants";
+import { FORM_ELEMENTS, SELECT } from "../../utils/Constants";
 
 // Component definition
 export default function Configurator(): ReactElement {
@@ -33,6 +44,8 @@ export default function Configurator(): ReactElement {
         gridRows: 1,
         gridCols: 1
     });
+    const operationRef = useRef('copy');
+
 
     // Sweet Alert initialization
     const MySwal = withReactContent(Swal);
@@ -53,17 +66,19 @@ export default function Configurator(): ReactElement {
 
     // an element is dropped into the form container
     // handles the drop event
-    const onDrop = (dropPayload: any, dropTargetInfo?: any): void => {
+    const onDrop = async (dropPayload: any, dropTargetInfo?: any) => {
         const item = dropPayload.item;
-        // const { dragSourceId } = dropPayload;
-
+        const { dragSourceId } = dropPayload;
+        // determines whether the dnd operation is within grid or not
+        const isWithinGrid = dragSourceId === FORM_ELEMENTS;
+        // Elements' properties initialization
         const labelText = "Label";
         const options = ['one', 'two'];
         const defaultStyle = {
             backgroundColor: 'white',
             height: 30,
             width: 150
-        }
+        };
 
         const properties = [
             { name: 'Label Text', value: labelText },
@@ -71,6 +86,12 @@ export default function Configurator(): ReactElement {
             { name: 'Width', value: defaultStyle.width },
             { name: 'Background Color', value: defaultStyle.backgroundColor },
         ].concat(item.type === SELECT ? [{ name: 'Options', value: options.join(', ') }] : []);
+
+
+        if (isWithinGrid) {
+            // ask user whether it wishes to copy or move the element to a cell in the grid
+            await askForMoveOrCopy();
+        }
 
         if (dropTargetInfo.hasOwnProperty('rowIndex') && dropTargetInfo.hasOwnProperty('colIndex')) {
             // indexes of cells where the element is dropped
@@ -103,41 +124,35 @@ export default function Configurator(): ReactElement {
                 );
             }
 
-            MySwal.fire({
-                ...sweetAlertContent,
-                ...sweetOptions
-            }).then(result => {
-                if (result.isConfirmed) {
-
-                    setGridCells((prevState: Array<any>) => {
-                        const tGridCells = [...prevState];
-                        tGridCells[rowIndex][colIndex].element = {
-                            ...item,
+            if (isWithinGrid && !alreadyHasElement) {
+                setNewGridState({
+                    item,
+                    rowIndex,
+                    colIndex,
+                    labelText,
+                    defaultStyle,
+                    options,
+                    operationRef
+                });
+            } else {
+                MySwal.fire({
+                    ...sweetAlertContent,
+                    ...sweetOptions
+                }).then(result => {
+                    if (result.isConfirmed) {
+                        // set new state for the grid
+                        setNewGridState({
+                            item,
+                            rowIndex,
+                            colIndex,
                             labelText,
-                            style: defaultStyle,
-                            options: item.type === SELECT ? options : []
-                        };
-
-                        return tGridCells;
-                    });
-
-                    /* setFormElements((prevState: any) => {
-                        if (prevState.some((el: any) => el.uid === item.uid)) {
-                            return prevState;
-                        };
-    
-                        return [
-                            ...prevState,
-                            {
-                                ...item,
-                                labelText,
-                                style: defaultStyle,
-                                options: item.type === SELECT ? options : []
-                            }
-                        ];
-                    }); */
-                }
-            });
+                            defaultStyle,
+                            options,
+                            operationRef
+                        });
+                    }
+                });
+            }
         }
     }
 
@@ -281,6 +296,73 @@ export default function Configurator(): ReactElement {
         });
     }
 
+    // prompt the user for copy or move operation
+    const askForMoveOrCopy = () => {
+        return MySwal.fire({
+            title: 'Move or Copy element',
+            html: (
+                <FormControl>
+                    <RadioGroup
+                        row
+                        aria-labelledby="demo-row-radio-buttons-group-label"
+                        name="row-radio-buttons-group"
+                        defaultValue={operationRef.current}
+                        onChange={e => {
+                            operationRef.current = e.target.value;
+                        }}
+                    >
+                        <FormControlLabel value="copy" control={<Radio />} label="Copy" />
+                        <FormControlLabel value="move" control={<Radio />} label="Move" />
+                    </RadioGroup>
+                </FormControl>
+            ),
+        });
+    }
+
+    // sets new grid state and effectively positions the elements in the grid
+    const setNewGridState = ({
+        item,
+        rowIndex,
+        colIndex,
+        labelText,
+        defaultStyle,
+        options,
+        operationRef
+    }: any) => {
+        setGridCells((prevState: Array<any>) => {
+            const tGridCells = [...prevState];
+            tGridCells[rowIndex][colIndex].element = {
+                ...item,
+                labelText,
+                style: defaultStyle,
+                options: item.type === SELECT ? options : []
+            };
+
+            if (operationRef.current === "move") {
+                // indexes of the cell from where the element is dragged
+                const { rowIndex: dragRowIndex, colIndex: dragColIndex } = item;
+                tGridCells[dragRowIndex][dragColIndex].element = null;
+            }
+
+            return tGridCells;
+        });
+
+        /* setFormElements((prevState: any) => {
+            if (prevState.some((el: any) => el.uid === item.uid)) {
+                return prevState;
+            };
+ 
+            return [
+                ...prevState,
+                {
+                    ...item,
+                    labelText,
+                    style: defaultStyle,
+                    options: item.type === SELECT ? options : []
+                }
+            ];
+        }); */
+    }
     /** Handler functions - starts */
     
     // Main Renderer
