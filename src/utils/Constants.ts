@@ -10,3 +10,4 @@ export const DATE = 'date';
 export const OPTIONS = 'options';
 export const CONTROLS = 'controls';
 export const FORM_ELEMENTS = 'form-elements';
+export const MAX_GRID_COLS = 12;
