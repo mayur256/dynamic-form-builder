@@ -31,7 +31,7 @@ export default function Navbar(): ReactElement {
                         <MenuIcon />
                     </IconButton>
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                        Brix
+                        Dynamic Form Builder
                     </Typography>
 
                     <Button color="inherit" sx={{ textAlign: 'right' }} onClick={() => goTo('')}>Home</Button>
