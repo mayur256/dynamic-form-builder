@@ -1,6 +1,5 @@
 // top level imports
 import { ReactElement, SyntheticEvent, useState, useEffect, useRef } from "react";
-// import { nanoid } from "nanoid";
 
 // MUI
 import {
@@ -281,7 +280,7 @@ export default function Configurator(): ReactElement {
             ...sweetOptions
         }).then(result => {
             if (result.isConfirmed) {
-                const grids = [];
+                const grids: Array<any> = [];
                 const rows = +gridDimRef.current.gridRows;
                 const cols = +gridDimRef.current.gridCols;
 
@@ -299,7 +298,7 @@ export default function Configurator(): ReactElement {
                     grids.push(colsArray);
                 }
 
-                setGridCells(grids);
+                setGridCells((prevState: Array<any>) => [...prevState, ...grids]);
             }
         });
     }
@@ -357,22 +356,6 @@ export default function Configurator(): ReactElement {
 
             return tGridCells;
         });
-
-        /* setFormElements((prevState: any) => {
-            if (prevState.some((el: any) => el.uid === item.uid)) {
-                return prevState;
-            };
- 
-            return [
-                ...prevState,
-                {
-                    ...item,
-                    labelText,
-                    style: defaultStyle,
-                    options: item.type === SELECT ? options : []
-                }
-            ];
-        }); */
     }
 
     // generates a json representation of the form container elements
@@ -424,7 +407,7 @@ export default function Configurator(): ReactElement {
                 <Typography variant="h4" my={1} py={1}>Configurator</Typography>
                 <Box>
                     <Stack direction="row" spacing={2} paddingTop={2}>
-                        <Button variant="contained" disabled={gridCells.length > 0} onClick={askForGridDimensions}>Add Grid Cells</Button>
+                        <Button variant="contained" onClick={askForGridDimensions}>Add Grid Cells</Button>
                         <Button variant="contained" disabled={gridCells.length === 0} onClick={generateJson}>Save</Button>
                         <Button
                             variant="contained"
